@@ -645,10 +645,71 @@ function renderHistory() {
   document.getElementById("totFacturado").textContent = fmt(totalFact);
   document.getElementById("totGanancia").textContent = fmt(totalGan);
   totBlock.style.display = "block";
+
+  if (state.savedProjects && state.savedProjects.length > 0) {
+    const ultimoProyecto = state.savedProjects[state.savedProjects.length - 1];
+    guardarProyecto(ultimoProyecto);
+  }
 }
 
-init();
-</script>
+// FIX 1: Definir PASSWORD_HISTORIAL (estaba usada pero nunca declarada)
+const PASSWORD_HISTORIAL = "";
 
+const BIN_ID = '6a381f2af5f4af5e29191f95';
+const API_KEY = '$2a$10$BKBLIng9FGKevbp4c6r//.otWvHwSgcPJJxtgJzk.0G9ro6AJM7Ru';
+const URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+
+// 1. OBTENER EL HISTORIAL (Protegido con contraseña)
+async function obtenerHistorial(llaveAcceso = "") {
+  if (llaveAcceso !== PASSWORD_HISTORIAL) {
+    console.warn('Acceso denegado al historial.');
+    return [];
+  }
+  try {
+    const respuesta = await fetch(URL, {
+      method: 'GET',
+      headers: {
+        'X-Master-Key': API_KEY,
+        'X-Bin-Meta': 'false'
+      }
+    });
+    if (!respuesta.ok) throw new Error('Error al obtener datos');
+    const historial = await respuesta.json();
+    return historial || [];
+  } catch (error) {
+    console.error('Error de red:', error);
+    return [];
+  }
+}
+
+// 2. GUARDAR UN NUEVO PROYECTO
+async function guardarProyecto(nuevoProyecto) {
+  try {
+    const historialActual = await obtenerHistorial(PASSWORD_HISTORIAL);
+    historialActual.push(nuevoProyecto);
+    const respuesta = await fetch(URL, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': API_KEY
+      },
+      body: JSON.stringify(historialActual)
+    });
+    if (respuesta.ok) {
+      console.log('Historial actualizado con éxito en jsonBIN');
+      return true;
+    } else {
+      console.error('No se pudo actualizar el historial');
+      return false;
+    }
+  } catch (error) {
+    console.error('Error al guardar:', error);
+    return false;
+  }
+}
+
+// FIX 2: Llamar init() al cargar la página
+window.addEventListener("DOMContentLoaded", init);
+</script>
 </body>
 </html>
