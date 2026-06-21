@@ -348,9 +348,29 @@ let state = {
 };
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-function init() {
+async function init() {
   buildModelButtons();
   recalc();
+  await cargarHistorial();
+}
+async function cargarHistorial() {
+  try {
+    const respuesta = await fetch(URL, {
+      method: 'GET',
+      headers: {
+        'X-Master-Key': API_KEY,
+        'X-Bin-Meta': 'false'
+      }
+    });
+    if (respuesta.ok) {
+      const data = await respuesta.json();
+      state.savedProjects = Array.isArray(data) ? data.filter(p => p && p.id) : [];
+      document.getElementById("tabHistory").textContent = "📁 Historial (" + state.savedProjects.length + ")";
+      renderHistory();
+    }
+  } catch (error) {
+    console.error('Error al cargar historial:', error);
+  }
 }
 
 function creditCost() {
