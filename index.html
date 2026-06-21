@@ -309,47 +309,48 @@
 <script>
 // ── DATA ─────────────────────────────────────────────────────────────────────
 const PLANS = {
-  starter: { name:"Starter", monthly:15, annual:15,  credits:200  },
-  plus:    { name:"Plus",    monthly:49, annual:39,  credits:1000 },
-  ultra:   { name:"Ultra",  monthly:129, annual:99, credits:3000 },
+  starter: { name:"Starter", monthly:15,  annual:15,  credits:200  },
+  plus:    { name:"Plus",    monthly:49,  annual:39,  credits:1000 },
+  ultra:   { name:"Ultra",  monthly:129, annual:99,  credits:3000 },
 };
 
 const MODELS = [
-  {id:"kling3",       name:"Kling 3.0",              cat:"Video Premium", cr:6,  dur:5, unit:"clip 5s", color:"#a855f7", note:"~6 créditos por clip 720p"},
-  {id:"kling3_4k",    name:"Kling 3.0 (4K)",         cat:"Video Premium", cr:18, dur:5, unit:"clip 5s", color:"#a855f7", note:"~3x más créditos en 4K"},
-  {id:"seedance2",    name:"Seedance 2.0",            cat:"Video Premium", cr:25, dur:5, unit:"clip 5s", color:"#ec4899", note:"Audio nativo incluido"},
-  {id:"veo3_fast",    name:"Veo 3 Fast",              cat:"Video Premium", cr:22, dur:8, unit:"clip 8s", color:"#f97316", note:"720p con audio"},
-  {id:"veo3",         name:"Veo 3 (Full)",            cat:"Video Premium", cr:58, dur:8, unit:"clip 8s", color:"#ef4444", note:"Solo en Plus/Ultra"},
-  {id:"sora2",        name:"Sora 2",                  cat:"Video Premium", cr:55, dur:5, unit:"clip 5s", color:"#ef4444", note:"40–70 créditos según duración"},
-  {id:"hailuo02",     name:"Hailuo 02",               cat:"Video Premium", cr:10, dur:5, unit:"clip 5s", color:"#f59e0b", note:""},
-  {id:"wan26",        name:"WAN 2.6",                 cat:"Video Estándar",cr:5,  dur:5, unit:"clip 5s", color:"#22c55e", note:"Unlimited en ciertos planes"},
-  {id:"soul_v2",      name:"Soul V2",                 cat:"Video Estándar",cr:0,  dur:5, unit:"clip 5s", color:"#6b7280", note:"Gratis (5000 gens/mes en Plus)"},
-  {id:"nano_banana",  name:"Nano Banana Pro (4K)",    cat:"Imagen",        cr:2,  dur:0, unit:"imagen",  color:"#14b8a6", note:"Texto preciso en 4K"},
-  {id:"flux2_pro",    name:"Flux.2 Pro",              cat:"Imagen",        cr:3,  dur:0, unit:"imagen",  color:"#14b8a6", note:"Unlimited en Plus/Ultra"},
-  {id:"ideogram_h",   name:"Ideogram (via Higgsfield)",cat:"Imagen",       cr:4,  dur:0, unit:"imagen",  color:"#14b8a6", note:""},
+  {id:"kling3",       name:"Kling 3.0",               cat:"Video Premium",  cr:6,  dur:5, unit:"clip 5s", color:"#a855f7", note:"~6 créditos por clip 720p"},
+  {id:"kling3_4k",    name:"Kling 3.0 (4K)",          cat:"Video Premium",  cr:18, dur:5, unit:"clip 5s", color:"#a855f7", note:"~3x más créditos en 4K"},
+  {id:"seedance2",    name:"Seedance 2.0",             cat:"Video Premium",  cr:25, dur:5, unit:"clip 5s", color:"#ec4899", note:"Audio nativo incluido"},
+  {id:"veo3_fast",    name:"Veo 3 Fast",               cat:"Video Premium",  cr:22, dur:8, unit:"clip 8s", color:"#f97316", note:"720p con audio"},
+  {id:"veo3",         name:"Veo 3 (Full)",             cat:"Video Premium",  cr:58, dur:8, unit:"clip 8s", color:"#ef4444", note:"Solo en Plus/Ultra"},
+  {id:"sora2",        name:"Sora 2",                   cat:"Video Premium",  cr:55, dur:5, unit:"clip 5s", color:"#ef4444", note:"40–70 créditos según duración"},
+  {id:"hailuo02",     name:"Hailuo 02",                cat:"Video Premium",  cr:10, dur:5, unit:"clip 5s", color:"#f59e0b", note:""},
+  {id:"wan26",        name:"WAN 2.6",                  cat:"Video Estándar", cr:5,  dur:5, unit:"clip 5s", color:"#22c55e", note:"Unlimited en ciertos planes"},
+  {id:"soul_v2",      name:"Soul V2",                  cat:"Video Estándar", cr:0,  dur:5, unit:"clip 5s", color:"#6b7280", note:"Gratis (5000 gens/mes en Plus)"},
+  {id:"nano_banana",  name:"Nano Banana Pro (4K)",     cat:"Imagen",         cr:2,  dur:0, unit:"imagen",  color:"#14b8a6", note:"Texto preciso en 4K"},
+  {id:"flux2_pro",    name:"Flux.2 Pro",               cat:"Imagen",         cr:3,  dur:0, unit:"imagen",  color:"#14b8a6", note:"Unlimited en Plus/Ultra"},
+  {id:"ideogram_h",   name:"Ideogram (via Higgsfield)", cat:"Imagen",        cr:4,  dur:0, unit:"imagen",  color:"#14b8a6", note:""},
 ];
 
 const CAT_IDS = {
-  "Video Premium": "modelBtnsVideoPremium",
-  "Video Estándar": "modelBtnsVideoEstandar",
-  "Imagen": "modelBtnsImagen",
+  "Video Premium":   "modelBtnsVideoPremium",
+  "Video Estándar":  "modelBtnsVideoEstandar",
+  "Imagen":          "modelBtnsImagen",
 };
 
 const USD_TO_COP = 4100;
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let state = {
-  plan: "plus",
-  billing: "annual",
-  currency: "COP",
-  clips: [],
+  plan:            "plus",
+  billing:         "annual",
+  currency:        "COP",
+  clips:           [],
   selectedModelId: "kling3",
-  savedProjects: [],
+  savedProjects:   [],
 };
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 function init() {
   buildModelButtons();
+  updatePlanPrices();
   recalc();
 }
 
@@ -360,24 +361,25 @@ function creditCost() {
 }
 
 function fmt(usd) {
-  if (state.currency === "COP") return "$" + Math.round(usd * USD_TO_COP).toLocaleString("es-CO") + " COP";
+  if (state.currency === "COP") {
+    return "$" + Math.round(usd * USD_TO_COP).toLocaleString("es-CO") + " COP";
+  }
   return "$" + usd.toFixed(2) + " USD";
 }
 
 // ── TABS ──────────────────────────────────────────────────────────────────────
-let activeTab = "calc";
 function switchTab(tab, btn) {
   document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
   document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
   document.getElementById("tab-" + tab).classList.add("active");
-  activeTab = tab;
 }
 
 // ── CURRENCY ─────────────────────────────────────────────────────────────────
 function toggleCurrency() {
   state.currency = state.currency === "COP" ? "USD" : "COP";
-  document.getElementById("btnCurrency").textContent = state.currency === "COP" ? "🇨🇴 COP ⇄" : "🇺🇸 USD ⇄";
+  document.getElementById("btnCurrency").textContent =
+    state.currency === "COP" ? "🇨🇴 COP ⇄" : "🇺🇸 USD ⇄";
   recalc();
   renderHistory();
 }
@@ -393,7 +395,7 @@ function selectPlan(planId, btn) {
 
 function selectBilling(b) {
   state.billing = b;
-  document.getElementById("billAnnual").classList.toggle("active", b === "annual");
+  document.getElementById("billAnnual").classList.toggle("active",  b === "annual");
   document.getElementById("billMonthly").classList.toggle("active", b === "monthly");
   updatePlanPrices();
   recalc();
@@ -402,7 +404,8 @@ function selectBilling(b) {
 function updatePlanPrices() {
   Object.entries(PLANS).forEach(([id, p]) => {
     const price = state.billing === "annual" ? p.annual : p.monthly;
-    document.getElementById("price-" + id).textContent = "$" + price + "/mes";
+    const el = document.getElementById("price-" + id);
+    if (el) el.textContent = "$" + price + "/mes";
   });
 }
 
@@ -410,15 +413,21 @@ function updatePlanPrices() {
 function buildModelButtons() {
   Object.entries(CAT_IDS).forEach(([cat, containerId]) => {
     const container = document.getElementById(containerId);
+    if (!container) return;
     container.innerHTML = "";
     MODELS.filter(m => m.cat === cat).forEach(m => {
       const btn = document.createElement("button");
-      btn.className = "model-btn" + (m.id === state.selectedModelId ? " active" : "");
+      const isActive = m.id === state.selectedModelId;
+      btn.className = "model-btn" + (isActive ? " active" : "");
       btn.dataset.modelId = m.id;
-      btn.style.borderColor = m.id === state.selectedModelId ? m.color : "#3b1f6a";
-      btn.style.background = m.id === state.selectedModelId ? m.color + "33" : "#0f0a24";
-      btn.innerHTML = m.name + '<span style="margin-left:5px;opacity:.7;font-size:10px">' +
-        (m.cr === 0 ? "GRATIS" : m.cr + "cr/" + m.unit) + "</span>";
+      btn.style.borderColor = isActive ? m.color : "#3b1f6a";
+      btn.style.background  = isActive ? m.color + "33" : "#0f0a24";
+      btn.style.color       = isActive ? "#fff" : "#9ca3af";
+      btn.innerHTML =
+        m.name +
+        '<span style="margin-left:5px;opacity:.7;font-size:10px">' +
+        (m.cr === 0 ? "GRATIS" : m.cr + "cr/" + m.unit) +
+        "</span>";
       btn.onclick = () => selectModel(m.id);
       container.appendChild(btn);
     });
@@ -429,14 +438,15 @@ function selectModel(id) {
   state.selectedModelId = id;
   document.querySelectorAll(".model-btn").forEach(b => {
     const m = MODELS.find(x => x.id === b.dataset.modelId);
+    if (!m) return;
     const isActive = b.dataset.modelId === id;
     b.classList.toggle("active", isActive);
     b.style.borderColor = isActive ? m.color : "#3b1f6a";
-    b.style.background = isActive ? m.color + "33" : "#0f0a24";
-    b.style.color = isActive ? "#fff" : "#9ca3af";
+    b.style.background  = isActive ? m.color + "33" : "#0f0a24";
+    b.style.color       = isActive ? "#fff" : "#9ca3af";
   });
   const m = MODELS.find(x => x.id === id);
-  document.getElementById("qtyLabel").textContent = "Cantidad de " + m.unit;
+  if (m) document.getElementById("qtyLabel").textContent = "Cantidad de " + m.unit;
   updatePreview();
 }
 
@@ -445,7 +455,7 @@ function updatePreview() {
   if (!m) return;
   const qty = parseInt(document.getElementById("qtyInput").value) || 1;
   const totalCr = m.cr * qty;
-  const costUSD = totalCr * creditCost();
+  const costUSD  = totalCr * creditCost();
   document.getElementById("previewCost").innerHTML =
     "= <strong>" + totalCr + " créditos</strong> → " +
     (m.cr === 0 ? "GRATIS" : fmt(costUSD)) +
@@ -480,13 +490,15 @@ function removeClip(id) {
 }
 
 function renderClips() {
-  const list = document.getElementById("clipList");
-  const empty = document.getElementById("emptyMsg");
+  const list  = document.getElementById("clipList");
+  const usedEl = document.getElementById("creditsUsed");
 
   if (state.clips.length === 0) {
-    list.innerHTML = "";
-    list.appendChild(empty || createEmptyMsg());
-    document.getElementById("creditsUsed").style.display = "none";
+    list.innerHTML =
+      '<div class="empty-msg" id="emptyMsg">' +
+      'Agrega los clips que generaste en Higgsfield<br>' +
+      '<span style="color:#4b5563">Kling, Veo 3, Seedance, Sora 2...</span></div>';
+    usedEl.style.display = "none";
     return;
   }
 
@@ -494,13 +506,13 @@ function renderClips() {
     const m = MODELS.find(x => x.id === c.modelId);
     if (!m) return "";
     const totalCr = m.cr * c.qty;
-    const costUSD = totalCr * creditCost();
-    const isFree = m.cr === 0;
+    const costUSD  = totalCr * creditCost();
+    const isFree   = m.cr === 0;
     return `<div class="clip-row" style="border:1px solid ${m.color}33">
       <div class="clip-dot" style="background:${m.color}"></div>
       <div style="flex:1">
         <div class="clip-name">${m.name}</div>
-        <div class="clip-sub">${c.qty} × ${isFree ? "GRATIS" : m.cr + " créd"} = <strong style="color:${m.color}">${totalCr} créditos</strong>${m.dur > 0 ? ' · ' + c.qty * m.dur + 's totales' : ''}</div>
+        <div class="clip-sub">${c.qty} × ${isFree ? "GRATIS" : m.cr + " créd"} = <strong style="color:${m.color}">${totalCr} créditos</strong>${m.dur > 0 ? " · " + c.qty * m.dur + "s totales" : ""}</div>
       </div>
       <div class="clip-cost" style="color:${isFree ? "#22c55e" : m.color}">${isFree ? "GRATIS" : fmt(costUSD)}</div>
       <button class="btn-remove" onclick="removeClip(${c.id})">×</button>
@@ -512,8 +524,9 @@ function renderClips() {
     return s + (m ? m.cr * c.qty : 0);
   }, 0);
   const planCr = PLANS[state.plan].credits;
-  document.getElementById("creditsUsed").style.display = "flex";
-  document.getElementById("creditsUsedVal").textContent = totalCr + " / " + planCr + " créditos del plan";
+  usedEl.style.display = "flex";
+  document.getElementById("creditsUsedVal").textContent =
+    totalCr + " / " + planCr + " créditos del plan";
 }
 
 // ── RECALC ────────────────────────────────────────────────────────────────────
@@ -522,7 +535,9 @@ function recalc() {
   const cPerCr = state.currency === "COP"
     ? "$" + Math.round(cc * USD_TO_COP).toLocaleString("es-CO") + " COP"
     : "$" + cc.toFixed(4) + " USD";
-  document.getElementById("costPerCredit").textContent = cPerCr;
+
+  const el = document.getElementById("costPerCredit");
+  if (el) el.textContent = cPerCr;
 
   const aiCredits = state.clips.reduce((s, c) => {
     const m = MODELS.find(x => x.id === c.modelId);
@@ -530,69 +545,70 @@ function recalc() {
   }, 0);
   const aiCostUSD = aiCredits * cc;
 
-  const hours = parseFloat(document.getElementById("myHours").value) || 0;
-  const rate = parseFloat(document.getElementById("myRate").value) || 0;
-  const margin = parseFloat(document.getElementById("margin").value) || 0;
+  const hours  = parseFloat(document.getElementById("myHours").value) || 0;
+  const rate   = parseFloat(document.getElementById("myRate").value)  || 0;
+  const margin = parseFloat(document.getElementById("margin").value)  || 0;
 
   const laborCOP = hours * rate;
   const laborUSD = laborCOP / USD_TO_COP;
   const totalUSD = aiCostUSD + laborUSD;
-  const suggestedUSD = margin >= 100 ? totalUSD * 2 : totalUSD / (1 - margin / 100);
+  const suggestedUSD = margin >= 100
+    ? totalUSD * 2
+    : totalUSD / (1 - margin / 100);
   const profitUSD = suggestedUSD - totalUSD;
 
-  // Labor info
   document.getElementById("laborInfo").innerHTML =
     "Tu mano de obra: <strong>" + fmt(laborUSD) + "</strong>" +
     '<span style="color:#4b5563;margin-left:8px">(' + hours + "h × $" + rate.toLocaleString("es-CO") + "/h)</span>";
 
-  // Summary
   document.getElementById("aiCostVal").textContent = fmt(aiCostUSD);
-  document.getElementById("aiSub").textContent = aiCredits + " créditos × " + cPerCr + "/cr";
-  document.getElementById("laborVal").textContent = fmt(laborUSD);
-  document.getElementById("laborSub").textContent = hours + "h × $" + rate.toLocaleString("es-CO") + "/h";
-  document.getElementById("totalVal").textContent = fmt(totalUSD);
-  document.getElementById("priceVal").textContent = fmt(suggestedUSD);
-  document.getElementById("priceSub").innerHTML =
+  document.getElementById("aiSub").textContent     = aiCredits + " créditos × " + cPerCr + "/cr";
+  document.getElementById("laborVal").textContent  = fmt(laborUSD);
+  document.getElementById("laborSub").textContent  = hours + "h × $" + rate.toLocaleString("es-CO") + "/h";
+  document.getElementById("totalVal").textContent  = fmt(totalUSD);
+  document.getElementById("priceVal").textContent  = fmt(suggestedUSD);
+  document.getElementById("priceSub").innerHTML    =
     "con " + margin + "% de margen · Tu ganancia: <strong style='color:#4ade80'>" + fmt(profitUSD) + "</strong>";
 
-  const p = PLANS[state.plan];
+  const p         = PLANS[state.plan];
   const planPrice = state.billing === "annual" ? p.annual : p.monthly;
-  let tip = "💡 Tu suscripción " + p.name + " cuesta <strong style='color:#a855f7'>$" + planPrice + "/mes</strong> y tienes <strong style='color:#a855f7'>" + p.credits + " créditos</strong>.";
+  let tip = "💡 Tu suscripción " + p.name +
+    " cuesta <strong style='color:#a855f7'>$" + planPrice + "/mes</strong>" +
+    " y tienes <strong style='color:#a855f7'>" + p.credits + " créditos</strong>.";
   if (aiCredits > 0) {
     const pct = Math.round(aiCredits / p.credits * 100);
     tip += " Este proyecto usa el <strong style='color:#f59e0b'>" + pct + "%</strong> de tus créditos mensuales.";
   }
   document.getElementById("tipBox").innerHTML = tip;
 
-  // Re-render clips (costs may change with plan)
   renderClips();
   updatePreview();
 }
 
 // ── SAVE ──────────────────────────────────────────────────────────────────────
 function saveProject() {
-  const cc = creditCost();
+  const cc        = creditCost();
   const aiCredits = state.clips.reduce((s, c) => {
     const m = MODELS.find(x => x.id === c.modelId);
     return s + (m ? m.cr * c.qty : 0);
   }, 0);
   const aiCostUSD = aiCredits * cc;
-  const hours = parseFloat(document.getElementById("myHours").value) || 0;
-  const rate = parseFloat(document.getElementById("myRate").value) || 0;
-  const margin = parseFloat(document.getElementById("margin").value) || 0;
-  const laborUSD = (hours * rate) / USD_TO_COP;
-  const totalUSD = aiCostUSD + laborUSD;
+  const hours     = parseFloat(document.getElementById("myHours").value) || 0;
+  const rate      = parseFloat(document.getElementById("myRate").value)  || 0;
+  const margin    = parseFloat(document.getElementById("margin").value)  || 0;
+  const laborUSD  = (hours * rate) / USD_TO_COP;
+  const totalUSD  = aiCostUSD + laborUSD;
   const suggestedUSD = margin >= 100 ? totalUSD * 2 : totalUSD / (1 - margin / 100);
   const profitUSD = suggestedUSD - totalUSD;
 
   state.savedProjects.push({
-    id: Date.now(),
-    name: document.getElementById("projectName").value || "Sin nombre",
-    plan: state.plan,
-    billing: state.billing,
-    clips: [...state.clips],
-    myHours: hours,
-    myRate: rate,
+    id:           Date.now(),
+    name:         document.getElementById("projectName").value || "Sin nombre",
+    plan:         state.plan,
+    billing:      state.billing,
+    clips:        [...state.clips],
+    myHours:      hours,
+    myRate:       rate,
     margin,
     aiCredits,
     aiCostUSD,
@@ -600,20 +616,29 @@ function saveProject() {
     totalUSD,
     suggestedUSD,
     profitUSD,
-    date: new Date().toLocaleDateString("es-CO"),
+    date:         new Date().toLocaleDateString("es-CO"),
   });
 
-  document.getElementById("tabHistory").textContent = "📁 Historial (" + state.savedProjects.length + ")";
+  document.getElementById("tabHistory").textContent =
+    "📁 Historial (" + state.savedProjects.length + ")";
   renderHistory();
-  document.querySelector("[onclick=\"switchTab('history',this)\"]").click();
+
+  // Switch to history tab
+  document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+  document.getElementById("tab-history").classList.add("active");
+  document.getElementById("tabHistory").classList.add("active");
 }
 
 function renderHistory() {
-  const list = document.getElementById("historyList");
+  const list     = document.getElementById("historyList");
   const totBlock = document.getElementById("histTotals");
 
   if (state.savedProjects.length === 0) {
-    list.innerHTML = '<div style="text-align:center;padding:48px 0;color:#6b7280"><div style="font-size:40px;margin-bottom:10px">📂</div>Aún no tienes proyectos guardados.</div>';
+    list.innerHTML =
+      '<div style="text-align:center;padding:48px 0;color:#6b7280">' +
+      '<div style="font-size:40px;margin-bottom:10px">📂</div>' +
+      "Aún no tienes proyectos guardados.</div>";
     totBlock.style.display = "none";
     return;
   }
@@ -640,82 +665,15 @@ function renderHistory() {
   `).join("");
 
   const totalFact = state.savedProjects.reduce((s, p) => s + p.suggestedUSD, 0);
-  const totalGan = state.savedProjects.reduce((s, p) => s + p.profitUSD, 0);
+  const totalGan  = state.savedProjects.reduce((s, p) => s + p.profitUSD,    0);
   document.getElementById("totProjects").textContent = state.savedProjects.length;
   document.getElementById("totFacturado").textContent = fmt(totalFact);
-  document.getElementById("totGanancia").textContent = fmt(totalGan);
+  document.getElementById("totGanancia").textContent  = fmt(totalGan);
   totBlock.style.display = "block";
-
-    if (state.savedProjects && state.savedProjects.length > 0) {
-        const ultimoProyecto = state.savedProjects[state.savedProjects.length - 1];
-        guardarProyecto(ultimoProyecto);    
 }
-    
- const BIN_ID = '6a381f2af5f4af5e29191f95';
-        const API_KEY = '$2a$10$BKBLIng9FGKevbp4c6r//.otWvHwSgcPJJxtgJzk.0G9ro6AJM7Ru'; 
-        const URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
- 
-       // 1. OBTENER EL HISTORIAL (Solo trae los datos limpios de la nube)
-        async function obtenerHistorial() {
-            try {
-                const respuesta = await fetch(URL, {
-                    method: 'GET',
-                    headers: {
-                        'X-Master-Key': API_KEY,
-                        'X-Bin-Meta': 'false'
-                    }
-                });
-                if (!respuesta.ok) throw new Error('Error al obtener datos');
-                
-                const historial = await respuesta.json();
-                return historial || [];
-            } catch (error) {
-                console.error('Error de red al obtener historial:', error);
-                return [];
-            }
-        }
 
-        // 2. GUARDAR UN NUEVO PROYECTO (Se ejecuta en segundo plano sin congelar la interfaz)
-        async function guardarProyecto(nuevoProyecto) {
-            try {
-                const historialActual = await obtenerHistorial();
-                historialActual.push(nuevoProyecto);
-
-                const respuesta = await fetch(URL, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Master-Key': API_KEY
-                    },
-                    body: JSON.stringify(historialActual)
-                });
-
-                if (respuesta.ok) {
-                    console.log('Historial sincronizado en jsonBIN');
-                    return true;
-                } else {
-                    console.error('Error al actualizar jsonBIN');
-                    return false;
-                }
-            } catch (error) {
-                console.error('Error al guardar:', error);
-                return false;
-            }
-        }
-
-        // 3. FUNCIÓN EXCLUSIVA PARA QUE TÚ VEAS EL HISTORIAL DESDE LA CONSOLA (F12)
-        // Nadie más sabrá que existe y no interfiere con el HTML
-        async function verMiHistorialPrivado(clave) {
-            if (clave === 'miClaveSecreta') { // Cambia 'miClaveSecreta' por la que quieras
-                const datos = await obtenerHistorial();
-                console.log("--- TU HISTORIAL DE PROYECTOS ---");
-                console.table(datos);
-            } else {
-                console.warn("Clave incorrecta.");
-            }
-        }
-    </script> 
-    </body>
+// ── BOOT ──────────────────────────────────────────────────────────────────────
+window.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
 </html>
-
-
