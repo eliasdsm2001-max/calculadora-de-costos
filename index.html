@@ -647,64 +647,60 @@ function renderHistory() {
   totBlock.style.display = "block";
 }
 
-init();
-</script>
- // Configuración de jsonBIN
-const BIN_ID = 'TU_BIN_ID_AQUÍ';
-const API_KEY = 'TU_API_KEY_AQUÍ'; // Usa la Master Key o una Access Key válida
-const URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+<script>
+    
+        const BIN_ID = 'TU_BIN_ID_AQUÍ';
+        const API_KEY = 'TU_API_KEY_AQUÍ'; 
+        const URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
-// 1. OBTENER EL HISTORIAL (GET)
-async function obtenerHistorial() {
-    try {
-        const respuesta = await fetch(URL, {
-            method: 'GET',
-            headers: {
-                'X-Master-Key': API_KEY,
-                'X-Bin-Meta': 'false' // Para que devuelva solo el JSON limpio sin metadatos
+        // 3. Funciones para conectar con la nube
+        async function obtenerHistorial() {
+            try {
+                const respuesta = await fetch(URL, {
+                    method: 'GET',
+                    headers: {
+                        'X-Master-Key': API_KEY,
+                        'X-Bin-Meta': 'false'
+                    }
+                });
+                if (!respuesta.ok) throw new Error('Error al obtener datos');
+                
+                const historial = await respuesta.json();
+                return historial || [];
+            } catch (error) {
+                console.error('Error de red:', error);
+                return [];
             }
-        });
-        if (!respuesta.ok) throw new Error('Error al obtener datos');
-        
-        const historial = await respuesta.json();
-        return historial || [];
-    } catch (error) {
-        console.error('Error de red:', error);
-        return [];
-    }
-}
-
-// 2. GUARDAR UN NUEVO PROYECTO/CÁLCULO (PUT)
-async function guardarProyecto(nuevoProyecto) {
-    try {
-        // Primero obtenemos el historial actual
-        const historialActual = await obtenerHistorial();
-        
-        // Añadimos el nuevo cálculo al array
-        historialActual.push(nuevoProyecto);
-
-        // Actualizamos el contenedor en jsonBIN
-        const respuesta = await fetch(URL, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Master-Key': API_KEY
-            },
-            body: JSON.stringify(historialActual)
-        });
-
-        if (respuesta.ok) {
-            console.log('Historial actualizado con éxito');
-            return true;
-        } else {
-            console.error('No se pudo actualizar el historial');
-            return false;
         }
-    } catch (error) {
-        console.error('Error al guardar:', error);
-        return false;
-    }
-}
- </script>
-</body>
+
+        async function guardarProyecto(nuevoProyecto) {
+            try {
+                const historialActual = await obtenerHistorial();
+                historialActual.push(nuevoProyecto);
+
+                const respuesta = await fetch(URL, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': API_KEY
+                    },
+                    body: JSON.stringify(historialActual)
+                });
+
+                if (respuesta.ok) {
+                    console.log('Historial actualizado con éxito');
+                    return true;
+                } else {
+                    console.error('No se pudo actualizar el historial');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error al guardar:', error);
+                return false;
+            }
+        }
+    </script> 
+    </body>
 </html>
+
+
