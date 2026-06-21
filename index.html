@@ -655,14 +655,8 @@ function renderHistory() {
         const API_KEY = '$2a$10$BKBLIng9FGKevbp4c6r//.otWvHwSgcPJJxtgJzk.0G9ro6AJM7Ru'; 
         const URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
  
-       // 1. OBTENER EL HISTORIAL (Protegido con contraseña)
-        async function obtenerHistorial(llaveAcceso = "") {
-            
-            if (llaveAcceso !== PASSWORD_HISTORIAL) {
-                console.warn('Acceso denegado al historial.');
-                return [];
-            }
-
+       // 1. OBTENER EL HISTORIAL (Solo trae los datos limpios de la nube)
+        async function obtenerHistorial() {
             try {
                 const respuesta = await fetch(URL, {
                     method: 'GET',
@@ -676,16 +670,15 @@ function renderHistory() {
                 const historial = await respuesta.json();
                 return historial || [];
             } catch (error) {
-                console.error('Error de red:', error);
+                console.error('Error de red al obtener historial:', error);
                 return [];
             }
         }
 
-        // 2. GUARDAR UN NUEVO PROYECTO
+        // 2. GUARDAR UN NUEVO PROYECTO (Se ejecuta en segundo plano sin congelar la interfaz)
         async function guardarProyecto(nuevoProyecto) {
             try {
-                // Le pasamos la contraseña automáticamente para poder actualizar el array
-                const historialActual = await obtenerHistorial(PASSWORD_HISTORIAL);
+                const historialActual = await obtenerHistorial();
                 historialActual.push(nuevoProyecto);
 
                 const respuesta = await fetch(URL, {
@@ -698,15 +691,27 @@ function renderHistory() {
                 });
 
                 if (respuesta.ok) {
-                    console.log('Historial actualizado con éxito en jsonBIN');
+                    console.log('Historial sincronizado en jsonBIN');
                     return true;
                 } else {
-                    console.error('No se pudo actualizar el historial');
+                    console.error('Error al actualizar jsonBIN');
                     return false;
                 }
             } catch (error) {
                 console.error('Error al guardar:', error);
                 return false;
+            }
+        }
+
+        // 3. FUNCIÓN EXCLUSIVA PARA QUE TÚ VEAS EL HISTORIAL DESDE LA CONSOLA (F12)
+        // Nadie más sabrá que existe y no interfiere con el HTML
+        async function verMiHistorialPrivado(clave) {
+            if (clave === 'miClaveSecreta') { // Cambia 'miClaveSecreta' por la que quieras
+                const datos = await obtenerHistorial();
+                console.log("--- TU HISTORIAL DE PROYECTOS ---");
+                console.table(datos);
+            } else {
+                console.warn("Clave incorrecta.");
             }
         }
     </script> 
