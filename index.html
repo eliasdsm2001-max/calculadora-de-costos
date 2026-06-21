@@ -365,9 +365,7 @@ async function cargarHistorial() {
     });
     if (respuesta.ok) {
       const data = await respuesta.json();
-      state.savedProjects = Array.isArray(data) ? data.filter(p => p && p.id) : [];
-      document.getElementById("tabHistory").textContent = "📁 Historial (" + state.savedProjects.length + ")";
-      renderHistory();
+      
     }
   } catch (error) {
     console.error('Error al cargar historial:', error);
