@@ -629,10 +629,10 @@ function saveProject() {
     profitUSD,
     date: new Date().toLocaleDateString("es-CO"),
   });
-
-  document.getElementById("tabHistory").textContent = "📁 Historial (" + state.savedProjects.length + ")";
-  renderHistory();
-  document.querySelector("[onclick=\"switchTab('history',this)\"]").click();
+await guardarProyecto(state.savedProjects[state.savedProjects.length - 1]);
+document.getElementById("tabHistory").textContent = "📁 Historial (" + state.savedProjects.length + ")";
+renderHistory();
+document.querySelector("[onclick=\"switchTab('history',this)\"]").click();
 }
 
 function renderHistory() {
