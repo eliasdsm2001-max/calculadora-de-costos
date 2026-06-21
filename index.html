@@ -349,6 +349,7 @@ let state = {
 };
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
+// ── INIT ──────────────────────────────────────────────────────────────────────
 async function init() {
   buildModelButtons();
   recalc();
@@ -365,19 +366,19 @@ async function cargarHistorial() {
     });
     if (respuesta.ok) {
       const data = await respuesta.json();
-      
+      state.savedProjects = Array.isArray(data) ? data.filter(p => p && p.id) : [];
+      document.getElementById("tabHistory").textContent = "📁 Historial (" + state.savedProjects.length + ")";
+      renderHistory();
     }
   } catch (error) {
     console.error('Error al cargar historial:', error);
   }
 }
-
 function creditCost() {
   const p = PLANS[state.plan];
   const price = state.billing === "annual" ? p.annual : p.monthly;
   return price / p.credits;
 }
-
 function fmt(usd) {
   if (state.currency === "COP") return "$" + Math.round(usd * USD_TO_COP).toLocaleString("es-CO") + " COP";
   return "$" + usd.toFixed(2) + " USD";
@@ -665,9 +666,6 @@ function renderHistory() {
   document.getElementById("totGanancia").textContent = fmt(totalGan);
   totBlock.style.display = "block";
 
-  if (state.savedProjects && state.savedProjects.length > 0) {
-    const ultimoProyecto = state.savedProjects[state.savedProjects.length - 1];
-    guardarProyecto(ultimoProyecto);
   }
 }
 
