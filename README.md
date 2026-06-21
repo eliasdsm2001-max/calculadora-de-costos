@@ -3,9 +3,9 @@
 Herramienta gratuita para **creadores de contenido con IA** que usan [Higgsfield.ai](https://higgsfield.ai).  
 Calcula el costo real de cada video, cuántos créditos gastaste y cuánto cobrarle a tu cliente.
 
-![Preview](https://img.shields.io/badge/HTML-Solo%20archivo-purple?style=flat-square)
-![License](https://img.shields.io/badge/Licencia-MIT-green?style=flat-square)
-![Higgsfield](https://img.shields.io/badge/Higgsfield.ai-Compatible-blueviolet?style=flat-square)
+                              ![Preview](https://img.shields.io/badge/HTML-Solo%20archivo-purple?style=flat-square)
+                               ![License](https://img.shields.io/badge/Licencia-MIT-green?style=flat-square)
+                              ![Higgsfield](https://img.shields.io/badge/Higgsfield.ai-Compatible-blueviolet?style=flat-square)
 
 ---
 
