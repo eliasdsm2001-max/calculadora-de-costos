@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Higgsfield · Content Cost Calculator</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter','Segoe UI',sans-serif;background:#07070f;color:#e0dff8;min-height:100vh}
+  input,select{outline:none;font-family:inherit}
+  button{font-family:inherit;cursor:pointer}
+
+  /* ── Header ── */
+  .header{background:linear-gradient(135deg,#0c0720 0%,#170a3a 60%,#07070f 100%);border-bottom:1px solid #2a1a5e;padding:20px 16px 0}
+  .header-inner{max-width:820px;margin:0 auto}
+  .header-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+  .header-label{font-size:10px;letter-spacing:3px;color:#a855f7;text-transform:uppercase}
+  .header-title{font-size:24px;font-weight:900;background:linear-gradient(90deg,#e9d5ff,#a855f7 60%,#6366f1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-top:4px}
+  .btn-currency{background:#1a0a3e;border:1px solid #4c1d95;border-radius:8px;padding:6px 14px;color:#a855f7;font-size:13px;font-weight:700}
+  .tabs{display:flex;gap:2px;margin-top:18px}
+  .tab{background:transparent;border:none;border-radius:8px 8px 0 0;padding:7px 18px;color:#9ca3af;font-size:13px;font-weight:600;transition:.15s}
+  .tab.active{background:#a855f7;color:#fff}
+
+  /* ── Content ── */
+  .content{max-width:820px;margin:0 auto;padding:20px 14px}
+  .tab-panel{display:none;flex-direction:column;gap:14px}
+  .tab-panel.active{display:flex}
+
+  /* ── Cards ── */
+  .card{border-radius:14px;padding:18px}
+  .card-purple{background:#0f0a24;border:1px solid #2a1a5e}
+  .card-green{background:#071a0f;border:1px solid #14532d}
+  .card-gradient{background:linear-gradient(135deg,#0f0a24,#170a3a);border:1px solid #7c3aed}
+  .card-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;margin-bottom:12px}
+  .label-purple{color:#a855f7}
+  .label-green{color:#22c55e}
+
+  /* ── Plan buttons ── */
+  .plans{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .plan-btn{flex:1;min-width:110px;background:#1a0a3e;border:1px solid #3b1f6a;border-radius:10px;padding:10px 8px;color:#e0dff8;transition:.15s;text-align:center}
+  .plan-btn.active{background:linear-gradient(135deg,#5b21b6,#a855f7);border:2px solid #a855f7}
+  .plan-btn .plan-name{font-weight:800;font-size:14px}
+  .plan-btn .plan-credits{font-size:11px;color:#c4b5fd;margin-top:2px}
+  .plan-btn .plan-price{font-size:12px;color:#a855f7;font-weight:700;margin-top:3px}
+
+  /* ── Billing buttons ── */
+  .billing-btns{display:flex;gap:8px}
+  .billing-btn{background:transparent;border:1px solid #3b1f6a;border-radius:7px;padding:5px 14px;color:#9ca3af;font-size:12px;transition:.15s}
+  .billing-btn.active{background:#3b1f6a;border-color:#a855f7;color:#e9d5ff}
+
+  /* ── Inputs ── */
+  .input-field{width:100%;background:#1a0a3e;border:1px solid #3b1f6a;border-radius:8px;padding:9px 12px;color:#e0dff8;font-size:15px;font-weight:600}
+  .input-sm{background:#0a1f0f;border:1px solid #166534;border-radius:8px;padding:8px 10px;color:#e0dff8;font-size:14px;width:100%}
+  .input-tiny{background:#0a1f0f;border:1px solid #166534;border-radius:8px;padding:8px 10px;color:#e0dff8;font-size:14px;width:60px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  label.lbl{font-size:11px;color:#9ca3af;display:block;margin-bottom:4px}
+
+  /* ── Clip list ── */
+  .clips-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .btn-add{background:linear-gradient(135deg,#7c3aed,#a855f7);border:none;border-radius:8px;padding:6px 14px;color:#fff;font-size:12px;font-weight:700}
+  .clip-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#130c2a;border-radius:10px;margin-bottom:8px}
+  .clip-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+  .clip-name{font-size:13px;font-weight:600}
+  .clip-sub{font-size:11px;color:#9ca3af;margin-top:1px}
+  .clip-cost{font-size:13px;font-weight:700;white-space:nowrap;margin-left:auto}
+  .btn-remove{background:none;border:none;color:#ef4444;font-size:18px;line-height:1;padding:0 2px}
+  .empty-msg{text-align:center;padding:20px 0;color:#6b7280;font-size:13px}
+
+  /* ── Add model panel ── */
+  .add-panel{background:#170d32;border:1px solid #4c1d95;border-radius:12px;padding:14px;margin-top:8px}
+  .add-panel-label{font-size:12px;color:#a855f7;font-weight:600;margin-bottom:10px}
+  .cat-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+  .model-btns{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+  .model-btn{background:#0f0a24;border:1px solid #3b1f6a;border-radius:7px;padding:5px 10px;color:#9ca3af;font-size:12px;transition:.15s}
+  .model-btn.active{color:#fff}
+  .add-footer{display:flex;gap:10px;align-items:flex-end;margin-top:10px;flex-wrap:wrap}
+  .qty-group{display:flex;flex-direction:column}
+  .qty-input{background:#0f0a24;border:1px solid #3b1f6a;border-radius:7px;padding:7px 10px;color:#e0dff8;font-size:14px;width:70px}
+  .preview-cost{font-size:12px;color:#a855f7;padding-bottom:8px}
+  .btn-confirm{background:#7c3aed;border:none;border-radius:7px;padding:8px 14px;color:#fff;font-size:13px;font-weight:700}
+  .btn-cancel{background:#1f1f2e;border:1px solid #374151;border-radius:7px;padding:8px 12px;color:#9ca3af;font-size:13px}
+  .credits-used{margin-top:10px;padding:8px 12px;background:#130c2a;border-radius:8px;display:flex;justify-content:space-between;font-size:13px}
+
+  /* ── Summary ── */
+  .summary-rows{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+  .sum-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0}
+  .sum-row-label{font-size:13px;color:#9ca3af}
+  .sum-row-sub{font-size:11px;color:#4b5563}
+  .sum-row-val{font-size:14px;font-weight:600}
+  .sum-row.bold .sum-row-label{color:#c4b5fd;font-weight:700}
+  .sum-row.bold .sum-row-val{font-size:16px;font-weight:800;color:#e9d5ff}
+  .divider{height:1px;background:#2a1a5e;margin:4px 0}
+  .price-box{background:linear-gradient(135deg,#052e1c,#14532d);border-radius:12px;padding:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+  .price-label{font-size:13px;color:#86efac;margin-bottom:3px}
+  .price-sub{font-size:11px;color:#6b7280}
+  .price-big{font-size:28px;font-weight:900;color:#4ade80}
+  .tip-box{margin-top:12px;padding:8px 12px;background:#0f0a24;border-radius:8px;font-size:12px;color:#9ca3af}
+  .btn-save{margin-top:14px;width:100%;background:linear-gradient(135deg,#7c3aed,#a855f7);border:none;border-radius:10px;padding:12px;color:#fff;font-size:14px;font-weight:700}
+
+  /* ── History ── */
+  .hist-card{background:#0f0a24;border:1px solid #2a1a5e;border-radius:14px;padding:16px;margin-bottom:10px}
+  .hist-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px}
+  .hist-name{font-weight:700;font-size:15px}
+  .hist-meta{font-size:11px;color:#6b7280;margin-top:2px}
+  .hist-price{font-size:20px;font-weight:800;color:#4ade80}
+  .hist-price-label{font-size:10px;color:#9ca3af}
+  .tags{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .tag{border-radius:6px;padding:3px 9px;font-size:11px}
+  .totals-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .total-box{background:#0f0a24;border-radius:10px;padding:12px;text-align:center}
+  .total-val{font-size:17px;font-weight:800}
+  .total-lbl{font-size:11px;color:#6b7280;margin-top:3px}
+  .labor-info{margin-top:10px;font-size:12px;color:#86efac}
+
+  @media(max-width:520px){
+    .grid3{grid-template-columns:1fr 1fr}
+    .price-big{font-size:20px}
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div class="header-top">
+      <div>
+        <div class="header-label">Higgsfield.ai · Costos de producción</div>
+        <div class="header-title">Content Cost Calculator</div>
+      </div>
+      <button class="btn-currency" onclick="toggleCurrency()" id="btnCurrency">🇨🇴 COP ⇄</button>
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('calc',this)">⚡ Calculadora</button>
+      <button class="tab" onclick="switchTab('history',this)" id="tabHistory">📁 Historial (0)</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="content">
+
+  <!-- ══ CALCULADORA ══ -->
+  <div class="tab-panel active" id="tab-calc">
+
+    <!-- Proyecto -->
+    <div class="card card-purple">
+      <div class="card-label label-purple">Proyecto</div>
+      <input class="input-field" id="projectName" value="Video 60s" placeholder="Nombre del video..."/>
+    </div>
+
+    <!-- Plan -->
+    <div class="card card-purple">
+      <div class="card-label label-purple">Tu plan en Higgsfield</div>
+      <div class="plans" id="planBtns">
+        <button class="plan-btn" data-plan="starter" onclick="selectPlan('starter',this)">
+          <div class="plan-name">Starter</div>
+          <div class="plan-credits">200 créditos/mes</div>
+          <div class="plan-price" id="price-starter">$15/mes</div>
+        </button>
+        <button class="plan-btn active" data-plan="plus" onclick="selectPlan('plus',this)">
+          <div class="plan-name">Plus</div>
+          <div class="plan-credits">1000 créditos/mes</div>
+          <div class="plan-price" id="price-plus">$39/mes</div>
+        </button>
+        <button class="plan-btn" data-plan="ultra" onclick="selectPlan('ultra',this)">
+          <div class="plan-name">Ultra</div>
+          <div class="plan-credits">3000 créditos/mes</div>
+          <div class="plan-price" id="price-ultra">$99/mes</div>
+        </button>
+      </div>
+      <div class="billing-btns">
+        <button class="billing-btn active" id="billAnnual" onclick="selectBilling('annual')">📅 Anual (más barato)</button>
+        <button class="billing-btn" id="billMonthly" onclick="selectBilling('monthly')">🗓 Mensual</button>
+      </div>
+      <div style="margin-top:10px;font-size:12px;color:#9ca3af">
+        Costo por crédito: <strong style="color:#a855f7" id="costPerCredit"></strong>
+      </div>
+    </div>
+
+    <!-- Generaciones -->
+    <div class="card card-purple">
+      <div class="clips-header">
+        <div class="card-label label-purple" style="margin-bottom:0">🎬 Generaciones usadas</div>
+        <button class="btn-add" onclick="showAddPanel()">+ Agregar</button>
+      </div>
+
+      <div id="clipList">
+        <div class="empty-msg" id="emptyMsg">
+          Agrega los clips que generaste en Higgsfield<br>
+          <span style="color:#4b5563">Kling, Veo 3, Seedance, Sora 2...</span>
+        </div>
+      </div>
+
+      <!-- Add panel -->
+      <div class="add-panel" id="addPanel" style="display:none">
+        <div class="add-panel-label">Selecciona modelo</div>
+
+        <div class="cat-label" style="color:#a855f7">Video Premium</div>
+        <div class="model-btns" id="modelBtnsVideoPremium"></div>
+
+        <div class="cat-label" style="color:#22c55e">Video Estándar</div>
+        <div class="model-btns" id="modelBtnsVideoEstandar"></div>
+
+        <div class="cat-label" style="color:#14b8a6">Imagen</div>
+        <div class="model-btns" id="modelBtnsImagen"></div>
+
+        <div class="add-footer">
+          <div class="qty-group">
+            <label class="lbl" id="qtyLabel">Cantidad de clips</label>
+            <input type="number" class="qty-input" id="qtyInput" value="1" min="1" oninput="updatePreview()"/>
+          </div>
+          <div class="preview-cost" id="previewCost"></div>
+          <div style="display:flex;gap:6px;margin-left:auto">
+            <button class="btn-confirm" onclick="addClip()">✓ Agregar</button>
+            <button class="btn-cancel" onclick="hideAddPanel()">✗</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="credits-used" id="creditsUsed" style="display:none">
+        <span style="color:#9ca3af">Total créditos usados</span>
+        <span style="font-weight:700;color:#a855f7" id="creditsUsedVal"></span>
+      </div>
+    </div>
+
+    <!-- Tu trabajo -->
+    <div class="card card-green">
+      <div class="card-label label-green">💪 Tu Trabajo</div>
+      <div class="grid3">
+        <div>
+          <label class="lbl">Horas trabajadas</label>
+          <input type="number" class="input-sm" id="myHours" value="2" min="0" step="0.5" oninput="recalc()"/>
+        </div>
+        <div>
+          <label class="lbl">Tarifa/hora (COP)</label>
+          <input type="number" class="input-sm" id="myRate" value="50000" min="0" step="5000" oninput="recalc()"/>
+        </div>
+        <div>
+          <label class="lbl">Margen ganancia</label>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input type="number" class="input-tiny" id="margin" value="40" min="0" max="90" oninput="recalc()"/>
+            <span style="color:#22c55e;font-weight:800">%</span>
+          </div>
+        </div>
+      </div>
+      <div class="labor-info" id="laborInfo"></div>
+    </div>
+
+    <!-- Resumen -->
+    <div class="card card-gradient" style="padding:20px">
+      <div class="card-label label-purple">📊 Resumen del Proyecto</div>
+      <div class="summary-rows">
+        <div class="sum-row">
+          <div>
+            <div class="sum-row-label">🤖 Créditos Higgsfield</div>
+            <div class="sum-row-sub" id="aiSub"></div>
+          </div>
+          <div class="sum-row-val" id="aiCostVal"></div>
+        </div>
+        <div class="sum-row">
+          <div>
+            <div class="sum-row-label">💪 Tu trabajo</div>
+            <div class="sum-row-sub" id="laborSub"></div>
+          </div>
+          <div class="sum-row-val" id="laborVal"></div>
+        </div>
+        <div class="divider"></div>
+        <div class="sum-row bold">
+          <div><div class="sum-row-label">Total de costos</div></div>
+          <div class="sum-row-val" id="totalVal"></div>
+        </div>
+      </div>
+
+      <div class="price-box">
+        <div>
+          <div class="price-label">💰 Precio sugerido al cliente</div>
+          <div class="price-sub" id="priceSub"></div>
+        </div>
+        <div class="price-big" id="priceVal"></div>
+      </div>
+
+      <div class="tip-box" id="tipBox"></div>
+      <button class="btn-save" onclick="saveProject()">💾 Guardar proyecto</button>
+    </div>
+  </div>
+
+  <!-- ══ HISTORIAL ══ -->
+  <div class="tab-panel" id="tab-history">
+    <div class="card-label label-purple" style="font-size:10px;letter-spacing:3px;text-transform:uppercase">📁 Proyectos guardados</div>
+    <div id="historyList">
+      <div style="text-align:center;padding:48px 0;color:#6b7280">
+        <div style="font-size:40px;margin-bottom:10px">📂</div>
+        Aún no tienes proyectos guardados.
+      </div>
+    </div>
+    <div class="card card-gradient" id="histTotals" style="display:none;padding:18px">
+      <div class="card-label label-purple">📈 Totales acumulados</div>
+      <div class="totals-grid">
+        <div class="total-box"><div class="total-val" style="color:#c4b5fd" id="totProjects">0</div><div class="total-lbl">Proyectos</div></div>
+        <div class="total-box"><div class="total-val" style="color:#4ade80" id="totFacturado">$0</div><div class="total-lbl">Facturado</div></div>
+        <div class="total-box"><div class="total-val" style="color:#a3e635" id="totGanancia">$0</div><div class="total-lbl">Ganancia</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
+const PLANS = {
+  starter: { name:"Starter", monthly:15, annual:15,  credits:200  },
+  plus:    { name:"Plus",    monthly:49, annual:39,  credits:1000 },
+  ultra:   { name:"Ultra",  monthly:129, annual:99, credits:3000 },
+};
+
+const MODELS = [
+  {id:"kling3",       name:"Kling 3.0",              cat:"Video Premium", cr:6,  dur:5, unit:"clip 5s", color:"#a855f7", note:"~6 créditos por clip 720p"},
+  {id:"kling3_4k",    name:"Kling 3.0 (4K)",         cat:"Video Premium", cr:18, dur:5, unit:"clip 5s", color:"#a855f7", note:"~3x más créditos en 4K"},
+  {id:"seedance2",    name:"Seedance 2.0",            cat:"Video Premium", cr:25, dur:5, unit:"clip 5s", color:"#ec4899", note:"Audio nativo incluido"},
+  {id:"veo3_fast",    name:"Veo 3 Fast",              cat:"Video Premium", cr:22, dur:8, unit:"clip 8s", color:"#f97316", note:"720p con audio"},
+  {id:"veo3",         name:"Veo 3 (Full)",            cat:"Video Premium", cr:58, dur:8, unit:"clip 8s", color:"#ef4444", note:"Solo en Plus/Ultra"},
+  {id:"sora2",        name:"Sora 2",                  cat:"Video Premium", cr:55, dur:5, unit:"clip 5s", color:"#ef4444", note:"40–70 créditos según duración"},
+  {id:"hailuo02",     name:"Hailuo 02",               cat:"Video Premium", cr:10, dur:5, unit:"clip 5s", color:"#f59e0b", note:""},
+  {id:"wan26",        name:"WAN 2.6",                 cat:"Video Estándar",cr:5,  dur:5, unit:"clip 5s", color:"#22c55e", note:"Unlimited en ciertos planes"},
+  {id:"soul_v2",      name:"Soul V2",                 cat:"Video Estándar",cr:0,  dur:5, unit:"clip 5s", color:"#6b7280", note:"Gratis (5000 gens/mes en Plus)"},
+  {id:"nano_banana",  name:"Nano Banana Pro (4K)",    cat:"Imagen",        cr:2,  dur:0, unit:"imagen",  color:"#14b8a6", note:"Texto preciso en 4K"},
+  {id:"flux2_pro",    name:"Flux.2 Pro",              cat:"Imagen",        cr:3,  dur:0, unit:"imagen",  color:"#14b8a6", note:"Unlimited en Plus/Ultra"},
+  {id:"ideogram_h",   name:"Ideogram (via Higgsfield)",cat:"Imagen",       cr:4,  dur:0, unit:"imagen",  color:"#14b8a6", note:""},
+];
+
+const CAT_IDS = {
+  "Video Premium": "modelBtnsVideoPremium",
+  "Video Estándar": "modelBtnsVideoEstandar",
+  "Imagen": "modelBtnsImagen",
+};
+
+const USD_TO_COP = 4100;
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let state = {
+  plan: "plus",
+  billing: "annual",
+  currency: "COP",
+  clips: [],
+  selectedModelId: "kling3",
+  savedProjects: [],
+};
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+function init() {
+  buildModelButtons();
+  recalc();
+}
+
+function creditCost() {
+  const p = PLANS[state.plan];
+  const price = state.billing === "annual" ? p.annual : p.monthly;
+  return price / p.credits;
+}
+
+function fmt(usd) {
+  if (state.currency === "COP") return "$" + Math.round(usd * USD_TO_COP).toLocaleString("es-CO") + " COP";
+  return "$" + usd.toFixed(2) + " USD";
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+let activeTab = "calc";
+function switchTab(tab, btn) {
+  document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+  document.getElementById("tab-" + tab).classList.add("active");
+  activeTab = tab;
+}
+
+// ── CURRENCY ─────────────────────────────────────────────────────────────────
+function toggleCurrency() {
+  state.currency = state.currency === "COP" ? "USD" : "COP";
+  document.getElementById("btnCurrency").textContent = state.currency === "COP" ? "🇨🇴 COP ⇄" : "🇺🇸 USD ⇄";
+  recalc();
+  renderHistory();
+}
+
+// ── PLAN / BILLING ────────────────────────────────────────────────────────────
+function selectPlan(planId, btn) {
+  state.plan = planId;
+  document.querySelectorAll(".plan-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  updatePlanPrices();
+  recalc();
+}
+
+function selectBilling(b) {
+  state.billing = b;
+  document.getElementById("billAnnual").classList.toggle("active", b === "annual");
+  document.getElementById("billMonthly").classList.toggle("active", b === "monthly");
+  updatePlanPrices();
+  recalc();
+}
+
+function updatePlanPrices() {
+  Object.entries(PLANS).forEach(([id, p]) => {
+    const price = state.billing === "annual" ? p.annual : p.monthly;
+    document.getElementById("price-" + id).textContent = "$" + price + "/mes";
+  });
+}
+
+// ── MODEL BUTTONS ─────────────────────────────────────────────────────────────
+function buildModelButtons() {
+  Object.entries(CAT_IDS).forEach(([cat, containerId]) => {
+    const container = document.getElementById(containerId);
+    container.innerHTML = "";
+    MODELS.filter(m => m.cat === cat).forEach(m => {
+      const btn = document.createElement("button");
+      btn.className = "model-btn" + (m.id === state.selectedModelId ? " active" : "");
+      btn.dataset.modelId = m.id;
+      btn.style.borderColor = m.id === state.selectedModelId ? m.color : "#3b1f6a";
+      btn.style.background = m.id === state.selectedModelId ? m.color + "33" : "#0f0a24";
+      btn.innerHTML = m.name + '<span style="margin-left:5px;opacity:.7;font-size:10px">' +
+        (m.cr === 0 ? "GRATIS" : m.cr + "cr/" + m.unit) + "</span>";
+      btn.onclick = () => selectModel(m.id);
+      container.appendChild(btn);
+    });
+  });
+}
+
+function selectModel(id) {
+  state.selectedModelId = id;
+  document.querySelectorAll(".model-btn").forEach(b => {
+    const m = MODELS.find(x => x.id === b.dataset.modelId);
+    const isActive = b.dataset.modelId === id;
+    b.classList.toggle("active", isActive);
+    b.style.borderColor = isActive ? m.color : "#3b1f6a";
+    b.style.background = isActive ? m.color + "33" : "#0f0a24";
+    b.style.color = isActive ? "#fff" : "#9ca3af";
+  });
+  const m = MODELS.find(x => x.id === id);
+  document.getElementById("qtyLabel").textContent = "Cantidad de " + m.unit;
+  updatePreview();
+}
+
+function updatePreview() {
+  const m = MODELS.find(x => x.id === state.selectedModelId);
+  if (!m) return;
+  const qty = parseInt(document.getElementById("qtyInput").value) || 1;
+  const totalCr = m.cr * qty;
+  const costUSD = totalCr * creditCost();
+  document.getElementById("previewCost").innerHTML =
+    "= <strong>" + totalCr + " créditos</strong> → " +
+    (m.cr === 0 ? "GRATIS" : fmt(costUSD)) +
+    (m.note ? '<div style="color:#6b7280;font-size:11px">' + m.note + "</div>" : "");
+}
+
+// ── ADD / REMOVE CLIPS ────────────────────────────────────────────────────────
+function showAddPanel() {
+  document.getElementById("addPanel").style.display = "block";
+  selectModel(state.selectedModelId);
+  updatePreview();
+}
+
+function hideAddPanel() {
+  document.getElementById("addPanel").style.display = "none";
+}
+
+function addClip() {
+  const qty = parseInt(document.getElementById("qtyInput").value) || 1;
+  if (!state.selectedModelId || qty <= 0) return;
+  state.clips.push({ id: Date.now(), modelId: state.selectedModelId, qty });
+  document.getElementById("qtyInput").value = 1;
+  hideAddPanel();
+  renderClips();
+  recalc();
+}
+
+function removeClip(id) {
+  state.clips = state.clips.filter(c => c.id !== id);
+  renderClips();
+  recalc();
+}
+
+function renderClips() {
+  const list = document.getElementById("clipList");
+  const empty = document.getElementById("emptyMsg");
+
+  if (state.clips.length === 0) {
+    list.innerHTML = "";
+    list.appendChild(empty || createEmptyMsg());
+    document.getElementById("creditsUsed").style.display = "none";
+    return;
+  }
+
+  list.innerHTML = state.clips.map(c => {
+    const m = MODELS.find(x => x.id === c.modelId);
+    if (!m) return "";
+    const totalCr = m.cr * c.qty;
+    const costUSD = totalCr * creditCost();
+    const isFree = m.cr === 0;
+    return `<div class="clip-row" style="border:1px solid ${m.color}33">
+      <div class="clip-dot" style="background:${m.color}"></div>
+      <div style="flex:1">
+        <div class="clip-name">${m.name}</div>
+        <div class="clip-sub">${c.qty} × ${isFree ? "GRATIS" : m.cr + " créd"} = <strong style="color:${m.color}">${totalCr} créditos</strong>${m.dur > 0 ? ' · ' + c.qty * m.dur + 's totales' : ''}</div>
+      </div>
+      <div class="clip-cost" style="color:${isFree ? "#22c55e" : m.color}">${isFree ? "GRATIS" : fmt(costUSD)}</div>
+      <button class="btn-remove" onclick="removeClip(${c.id})">×</button>
+    </div>`;
+  }).join("");
+
+  const totalCr = state.clips.reduce((s, c) => {
+    const m = MODELS.find(x => x.id === c.modelId);
+    return s + (m ? m.cr * c.qty : 0);
+  }, 0);
+  const planCr = PLANS[state.plan].credits;
+  document.getElementById("creditsUsed").style.display = "flex";
+  document.getElementById("creditsUsedVal").textContent = totalCr + " / " + planCr + " créditos del plan";
+}
+
+// ── RECALC ────────────────────────────────────────────────────────────────────
+function recalc() {
+  const cc = creditCost();
+  const cPerCr = state.currency === "COP"
+    ? "$" + Math.round(cc * USD_TO_COP).toLocaleString("es-CO") + " COP"
+    : "$" + cc.toFixed(4) + " USD";
+  document.getElementById("costPerCredit").textContent = cPerCr;
+
+  const aiCredits = state.clips.reduce((s, c) => {
+    const m = MODELS.find(x => x.id === c.modelId);
+    return s + (m ? m.cr * c.qty : 0);
+  }, 0);
+  const aiCostUSD = aiCredits * cc;
+
+  const hours = parseFloat(document.getElementById("myHours").value) || 0;
+  const rate = parseFloat(document.getElementById("myRate").value) || 0;
+  const margin = parseFloat(document.getElementById("margin").value) || 0;
+
+  const laborCOP = hours * rate;
+  const laborUSD = laborCOP / USD_TO_COP;
+  const totalUSD = aiCostUSD + laborUSD;
+  const suggestedUSD = margin >= 100 ? totalUSD * 2 : totalUSD / (1 - margin / 100);
+  const profitUSD = suggestedUSD - totalUSD;
+
+  // Labor info
+  document.getElementById("laborInfo").innerHTML =
+    "Tu mano de obra: <strong>" + fmt(laborUSD) + "</strong>" +
+    '<span style="color:#4b5563;margin-left:8px">(' + hours + "h × $" + rate.toLocaleString("es-CO") + "/h)</span>";
+
+  // Summary
+  document.getElementById("aiCostVal").textContent = fmt(aiCostUSD);
+  document.getElementById("aiSub").textContent = aiCredits + " créditos × " + cPerCr + "/cr";
+  document.getElementById("laborVal").textContent = fmt(laborUSD);
+  document.getElementById("laborSub").textContent = hours + "h × $" + rate.toLocaleString("es-CO") + "/h";
+  document.getElementById("totalVal").textContent = fmt(totalUSD);
+  document.getElementById("priceVal").textContent = fmt(suggestedUSD);
+  document.getElementById("priceSub").innerHTML =
+    "con " + margin + "% de margen · Tu ganancia: <strong style='color:#4ade80'>" + fmt(profitUSD) + "</strong>";
+
+  const p = PLANS[state.plan];
+  const planPrice = state.billing === "annual" ? p.annual : p.monthly;
+  let tip = "💡 Tu suscripción " + p.name + " cuesta <strong style='color:#a855f7'>$" + planPrice + "/mes</strong> y tienes <strong style='color:#a855f7'>" + p.credits + " créditos</strong>.";
+  if (aiCredits > 0) {
+    const pct = Math.round(aiCredits / p.credits * 100);
+    tip += " Este proyecto usa el <strong style='color:#f59e0b'>" + pct + "%</strong> de tus créditos mensuales.";
+  }
+  document.getElementById("tipBox").innerHTML = tip;
+
+  // Re-render clips (costs may change with plan)
+  renderClips();
+  updatePreview();
+}
+
+// ── SAVE ──────────────────────────────────────────────────────────────────────
+function saveProject() {
+  const cc = creditCost();
+  const aiCredits = state.clips.reduce((s, c) => {
+    const m = MODELS.find(x => x.id === c.modelId);
+    return s + (m ? m.cr * c.qty : 0);
+  }, 0);
+  const aiCostUSD = aiCredits * cc;
+  const hours = parseFloat(document.getElementById("myHours").value) || 0;
+  const rate = parseFloat(document.getElementById("myRate").value) || 0;
+  const margin = parseFloat(document.getElementById("margin").value) || 0;
+  const laborUSD = (hours * rate) / USD_TO_COP;
+  const totalUSD = aiCostUSD + laborUSD;
+  const suggestedUSD = margin >= 100 ? totalUSD * 2 : totalUSD / (1 - margin / 100);
+  const profitUSD = suggestedUSD - totalUSD;
+
+  state.savedProjects.push({
+    id: Date.now(),
+    name: document.getElementById("projectName").value || "Sin nombre",
+    plan: state.plan,
+    billing: state.billing,
+    clips: [...state.clips],
+    myHours: hours,
+    myRate: rate,
+    margin,
+    aiCredits,
+    aiCostUSD,
+    laborUSD,
+    totalUSD,
+    suggestedUSD,
+    profitUSD,
+    date: new Date().toLocaleDateString("es-CO"),
+  });
+
+  document.getElementById("tabHistory").textContent = "📁 Historial (" + state.savedProjects.length + ")";
+  renderHistory();
+  document.querySelector("[onclick=\"switchTab('history',this)\"]").click();
+}
+
+function renderHistory() {
+  const list = document.getElementById("historyList");
+  const totBlock = document.getElementById("histTotals");
+
+  if (state.savedProjects.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:48px 0;color:#6b7280"><div style="font-size:40px;margin-bottom:10px">📂</div>Aún no tienes proyectos guardados.</div>';
+    totBlock.style.display = "none";
+    return;
+  }
+
+  list.innerHTML = state.savedProjects.map(p => `
+    <div class="hist-card">
+      <div class="hist-top">
+        <div>
+          <div class="hist-name">${p.name}</div>
+          <div class="hist-meta">${p.date} · Plan ${p.plan} · ${p.clips.length} modelos usados</div>
+        </div>
+        <div style="text-align:right">
+          <div class="hist-price">${fmt(p.suggestedUSD)}</div>
+          <div class="hist-price-label">precio cliente</div>
+        </div>
+      </div>
+      <div class="tags">
+        <span class="tag" style="background:#a855f71a;border:1px solid #a855f744;color:#a855f7">IA: ${fmt(p.aiCostUSD)}</span>
+        <span class="tag" style="background:#22c55e1a;border:1px solid #22c55e44;color:#22c55e">Trabajo: ${fmt(p.laborUSD)}</span>
+        <span class="tag" style="background:#f59e0b1a;border:1px solid #f59e0b44;color:#f59e0b">${p.aiCredits} créditos</span>
+        <span class="tag" style="background:#4ade801a;border:1px solid #4ade8044;color:#4ade80">Ganancia: ${fmt(p.profitUSD)}</span>
+      </div>
+    </div>
+  `).join("");
+
+  const totalFact = state.savedProjects.reduce((s, p) => s + p.suggestedUSD, 0);
+  const totalGan = state.savedProjects.reduce((s, p) => s + p.profitUSD, 0);
+  document.getElementById("totProjects").textContent = state.savedProjects.length;
+  document.getElementById("totFacturado").textContent = fmt(totalFact);
+  document.getElementById("totGanancia").textContent = fmt(totalGan);
+  totBlock.style.display = "block";
+}
+
+init();
+</script>
+</body>
+</html>
