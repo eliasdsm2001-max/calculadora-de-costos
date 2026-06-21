@@ -645,13 +645,16 @@ function renderHistory() {
   document.getElementById("totFacturado").textContent = fmt(totalFact);
   document.getElementById("totGanancia").textContent = fmt(totalGan);
   totBlock.style.display = "block";
+
+    if (state.savedProjects && state.savedProjects.length > 0) {
+        const ultimoProyecto = state.savedProjects[state.savedProjects.length - 1];
+        guardarProyecto(ultimoProyecto);    
 }
     
  const BIN_ID = 'TU_BIN_ID_AQUÍ';
         const API_KEY = 'TU_API_KEY_AQUÍ'; 
         const URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
-
-        // 3. Funciones para conectar con la nube
+ 
         async function obtenerHistorial() {
             try {
                 const respuesta = await fetch(URL, {
