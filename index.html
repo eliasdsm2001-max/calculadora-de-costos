@@ -208,6 +208,7 @@
         <div class="add-footer">
           <div class="qty-group">
             <label class="lbl" id="qtyLabel">Cantidad de clips</label>
+          
             <input type="number" class="qty-input" id="qtyInput" value="1" min="1" oninput="updatePreview()"/>
           </div>
           <div class="preview-cost" id="previewCost"></div>
@@ -337,13 +338,13 @@ const CAT_IDS = {
 };
 
 const USD_TO_COP = 4100;
+ 
+ const BIN_ID = '6a381f2af5f4af5e29191f95';
+const API_KEY = '$2a$10$BKBLIng9FGKevbp4c6r//.otWvHwSgcPJJxtgJzk.0G9ro6AJM7Ru';
+const URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
 // FIX 1: Definir PASSWORD_HISTORIAL (estaba usada pero nunca declarada)
 const PASSWORD_HISTORIAL = "";
-
-const BIN_ID = '6a381f2af5f4af5e29191f95';
-const API_KEY = '$2a$10$BKBLIng9FGKevbp4c6r//.otWvHwSgcPJJxtgJzk.0G9ro6AJM7Ru';
-const URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let state = {
